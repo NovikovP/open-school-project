@@ -1,5 +1,8 @@
 package com.successdca.open_school_project.service;
 
+import com.successdca.open_school_project.aspect.annotation.CalculatingTheExecutionTimeOfMethod;
+import com.successdca.open_school_project.aspect.annotation.LoggingAddedTaskInService;
+import com.successdca.open_school_project.aspect.annotation.LoggingDeletedTask;
 import com.successdca.open_school_project.model.Task;
 import com.successdca.open_school_project.repository.TaskRepository;
 import org.springframework.stereotype.Service;
@@ -15,6 +18,7 @@ public class TaskService {
         this.taskRepository = taskRepository;
     }
 
+    @LoggingAddedTaskInService
     public Task createTask(Task task) {
         return taskRepository.save(task);
     }
@@ -27,11 +31,13 @@ public class TaskService {
         return taskRepository.findAll();
     }
 
+    @CalculatingTheExecutionTimeOfMethod
     public Task updateTask(Long id, Task task) {
         task.setId(id);
         return taskRepository.save(task);
     }
 
+    @LoggingDeletedTask
     public void deleteTask(Long id) {
         taskRepository.deleteById(id);
     }
