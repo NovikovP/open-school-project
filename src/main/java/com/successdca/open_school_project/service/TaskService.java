@@ -1,44 +1,69 @@
 package com.successdca.open_school_project.service;
 
-import com.successdca.open_school_project.aspect.annotation.CalculatingTheExecutionTimeOfMethod;
-import com.successdca.open_school_project.aspect.annotation.LoggingAddedTaskInService;
-import com.successdca.open_school_project.aspect.annotation.LoggingDeletedTask;
-import com.successdca.open_school_project.model.Task;
+import com.successdca.open_school_project.aspect.annotation.LogAfterReturning;
+import com.successdca.open_school_project.aspect.annotation.LogAfterThrowing;
+import com.successdca.open_school_project.aspect.annotation.LogAround;
+import com.successdca.open_school_project.aspect.annotation.LogBefore;
+import com.successdca.open_school_project.kafka.producer.KafkaTaskProducer;
+import com.successdca.open_school_project.mapper.TaskMapper;
+import com.successdca.open_school_project.model.dto.TaskDTO;
+import com.successdca.open_school_project.model.entity.Task;
 import com.successdca.open_school_project.repository.TaskRepository;
+import lombok.RequiredArgsConstructor;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
 
 @Service
+@RequiredArgsConstructor
 public class TaskService {
 
     private final TaskRepository taskRepository;
+    private final TaskMapper taskMapper;
+    private final KafkaTaskProducer kafkaTaskProducer;
 
-    public TaskService(TaskRepository taskRepository) {
-        this.taskRepository = taskRepository;
+    @LogBefore
+    public TaskDTO createTask(TaskDTO taskDTO) {
+        Task task = taskMapper.taskDTOToTask(taskDTO);
+        task = taskRepository.save(task);
+        return taskMapper.taskToTaskDTO(task);
     }
 
-    @LoggingAddedTaskInService
-    public Task createTask(Task task) {
-        return taskRepository.save(task);
+    @LogAfterReturning
+    public TaskDTO getTaskById(Long id) {
+        Task task = taskRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Task with " + id + "not found"));
+        return taskMapper.taskToTaskDTO(task);
     }
 
-    public Task getTaskById(Long id) {
-        return taskRepository.findById(id).orElse(null);
+    public TaskDTO updateTask(Long id, TaskDTO taskDTO) {
+        Task existingTask = taskRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Task with ID " + id + " not found"));
+
+        existingTask.setTitle(taskDTO.getTitle());
+        existingTask.setDescription(taskDTO.getDescription());
+        existingTask.setStatus(taskDTO.getStatus());
+        Task updatedTask = taskRepository.save(existingTask);
+
+        kafkaTaskProducer.sendTaskStatusUpdate(taskMapper.taskToTaskDTO(updatedTask));
+
+        return taskMapper.taskToTaskDTO(updatedTask);
     }
 
-    public List<Task> getAllTasks() {
-        return taskRepository.findAll();
+    @LogAfterThrowing
+    public ResponseEntity<Void> deleteTask(Long id) {
+        Task task = taskRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Task with " + id + "not found"));
+        taskRepository.delete(task);
+        return ResponseEntity.noContent().build();
     }
 
-    @CalculatingTheExecutionTimeOfMethod
-    public Task updateTask(Long id, Task task) {
-        task.setId(id);
-        return taskRepository.save(task);
-    }
-
-    @LoggingDeletedTask
-    public void deleteTask(Long id) {
-        taskRepository.deleteById(id);
+    @LogAround
+    public List<TaskDTO> getAllTasks() {
+        List<Task> tasks = taskRepository.findAll();
+        return tasks.stream()
+                .map(taskMapper::taskToTaskDTO)
+                .toList();
     }
 }
