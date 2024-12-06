@@ -35,13 +35,20 @@ public class LoggingAspect {
 
     // Логирование входящих данных (например, тело запроса) в контроллере
     @Around("execution(* com.successdca.open_school_project.controller.TaskController.*(..))")
-    public Object logAround(ProceedingJoinPoint joinPoint) throws Throwable {
-        MethodSignature signature = (MethodSignature) joinPoint.getSignature();
-        logger.info("Method: {} called with args: {}", signature.getName(), Arrays.toString(joinPoint.getArgs()));
+    public Object logAround(ProceedingJoinPoint joinPoint)  {
+        Object result = null;
 
-        Object result = joinPoint.proceed(); // вызов метода
+        try {
+            MethodSignature signature = (MethodSignature) joinPoint.getSignature();
+            logger.info("Method: {} called with args: {}", signature.getName(), Arrays.toString(joinPoint.getArgs()));
 
-        logger.info("Method: {} returned: {}", signature.getName(), result);
+            result = joinPoint.proceed(); // вызов метода
+
+            logger.info("Method: {} returned: {}", signature.getName(), result);
+        } catch (Throwable e) {
+            logger.info("Method throws exeption {}", e.getMessage());
+        }
+
         return result;
     }
 
@@ -70,7 +77,7 @@ public class LoggingAspect {
             e.printStackTrace();
         }
 
-        logger.info("Method: {} execution : {} millisecond", signature.getName(), System.currentTimeMillis()-startTimeMillis);
+        logger.info("Method: {} execution : {} millisecond", signature.getName(), System.currentTimeMillis() - startTimeMillis);
 
         return result;
     }
