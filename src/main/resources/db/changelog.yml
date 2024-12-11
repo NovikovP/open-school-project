@@ -1,0 +1,20 @@
+databaseChangeLog:
+  - changeSet:
+      id: 1
+      author: Novikov Pavel
+      changes:
+        - sqlFile:
+            path: db/0.0.1/init.sql
+            relativeToChangelogFile: false
+            splitStatements: true
+            stripComments: true
+
+  - changeSet:
+      id: 2
+      author: Novikov Pavel
+      changes:
+        - sqlFile:
+            path: db/0.0.1/data.sql
+            relativeToChangelogFile: false
+            splitStatements: true
+            stripComments: true
