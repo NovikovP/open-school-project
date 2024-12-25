@@ -1,6 +1,6 @@
 package com.successdca.open_school_project.repository;
 
-import com.successdca.open_school_project.model.Task;
+import com.successdca.open_school_project.model.entity.Task;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
