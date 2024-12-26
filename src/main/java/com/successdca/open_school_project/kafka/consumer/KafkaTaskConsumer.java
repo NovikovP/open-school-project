@@ -1,6 +1,6 @@
 package com.successdca.open_school_project.kafka.consumer;
 
-import com.successdca.open_school_project.aspect.annotation.LogAfterThrowing;
+import com.spring.project.aspect.annotation.LogThrowing;
 import com.successdca.open_school_project.model.dto.TaskDTO;
 import com.successdca.open_school_project.service.NotificationService;
 import lombok.RequiredArgsConstructor;
@@ -17,7 +17,7 @@ public class KafkaTaskConsumer {
 
     private final NotificationService notificationService;
 
-    @LogAfterThrowing
+    @LogThrowing
     @KafkaListener(topics = "task-updates", groupId = "${spring.kafka.consumer.group-id}", containerFactory = "kafkaListenerContainerFactory")
     public void listenTaskStatusUpdate(List<TaskDTO> tasksDTO) {
         if (tasksDTO.isEmpty()) {

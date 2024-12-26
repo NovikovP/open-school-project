@@ -1,6 +1,6 @@
 package com.successdca.open_school_project.service;
 
-import com.successdca.open_school_project.aspect.annotation.LogAfterThrowing;
+import com.spring.project.aspect.annotation.LogThrowing;
 import com.successdca.open_school_project.model.dto.TaskDTO;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -19,7 +19,7 @@ public class NotificationService {
     @Value("${spring.mail.username}")
     private String email;
 
-    @LogAfterThrowing
+    @LogThrowing
     public void sendNotification(TaskDTO taskDTO) {
         SimpleMailMessage message = new SimpleMailMessage();
         message.setFrom(email);

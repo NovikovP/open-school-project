@@ -3,11 +3,13 @@ package com.successdca.open_school_project.model.entity;
 import com.successdca.open_school_project.enums.TaskStatus;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
 @NoArgsConstructor
 @AllArgsConstructor
+@Builder
 @Data
 @Entity
 @Table(name = "tasks")

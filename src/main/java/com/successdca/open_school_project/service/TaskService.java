@@ -1,9 +1,9 @@
 package com.successdca.open_school_project.service;
 
-import com.successdca.open_school_project.aspect.annotation.LogAfterReturning;
-import com.successdca.open_school_project.aspect.annotation.LogAfterThrowing;
-import com.successdca.open_school_project.aspect.annotation.LogAround;
-import com.successdca.open_school_project.aspect.annotation.LogBefore;
+import com.spring.project.aspect.annotation.LogBefore;
+import com.spring.project.aspect.annotation.LogResult;
+import com.spring.project.aspect.annotation.LogSpendTime;
+import com.spring.project.aspect.annotation.LogThrowing;
 import com.successdca.open_school_project.kafka.producer.KafkaTaskProducer;
 import com.successdca.open_school_project.mapper.TaskMapper;
 import com.successdca.open_school_project.model.dto.TaskDTO;
@@ -30,7 +30,7 @@ public class TaskService {
         return taskMapper.taskToTaskDTO(task);
     }
 
-    @LogAfterReturning
+    @LogSpendTime
     public TaskDTO getTaskById(Long id) {
         Task task = taskRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Task with " + id + "not found"));
@@ -51,15 +51,15 @@ public class TaskService {
         return taskMapper.taskToTaskDTO(updatedTask);
     }
 
-    @LogAfterThrowing
-    public ResponseEntity<Void> deleteTask(Long id) {
+    @LogThrowing
+    public void deleteTask(Long id) {
         Task task = taskRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Task with " + id + "not found"));
         taskRepository.delete(task);
-        return ResponseEntity.noContent().build();
+        ResponseEntity.noContent().build();
     }
 
-    @LogAround
+    @LogResult
     public List<TaskDTO> getAllTasks() {
         List<Task> tasks = taskRepository.findAll();
         return tasks.stream()
